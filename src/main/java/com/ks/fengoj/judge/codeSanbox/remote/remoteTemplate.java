@@ -7,6 +7,7 @@ import cn.hutool.json.JSONUtil;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeRequest;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeResponse;
 import com.ks.fengoj.judge.codeSanbox.model.JudgeInfo;
+import com.ks.fengoj.judge.codeSanbox.model.remote.CompileFileResult;
 import com.ks.fengoj.judge.codeSanbox.model.remote.Resp;
 import com.ks.fengoj.judge.codeSanbox.model.remote.RespFile;
 import com.ks.fengoj.model.enums.JudgeInfoMessageEnum;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ks.fengoj.constant.CommonConstant.REMOTE_URL;
+import static com.ks.fengoj.model.enums.JudgeInfoMessageEnum.RUNTIME_ERROR;
 
 /**
  * 远程调用模板-初始 java
@@ -29,18 +31,30 @@ public abstract class remoteTemplate {
         List<String> inputList = executeCodeRequest.getInputList();
         String code = executeCodeRequest.getCode();
         String language = executeCodeRequest.getLanguage();
+        ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
 
         // 语言是否需要编译
         boolean flag = NO_COMPILE.contains(language);
 
-        String fileId = null;
+        CompileFileResult compileFileResult = new CompileFileResult();
         if (!flag) {
             // 1、将请求处理成符合调用代码沙箱的请求
             String request = getRequest(code);
 
             // 2、请求接口进行编译，获得文件ID
-            fileId = compileFile(request);
+            compileFileResult = compileFile(request);
+            Integer status = compileFileResult.getStatus();
+            if (status == 1) {
+                executeCodeResponse.setStatus(3);
+                JudgeInfo judgeInfo = new JudgeInfo();
+                judgeInfo.setErrorMessage(compileFileResult.getContent());
+                ArrayList<JudgeInfo> judgeInfos = new ArrayList<>();
+                judgeInfos.add(judgeInfo);
+                executeCodeResponse.setJudgeInfo(judgeInfos);
+                return executeCodeResponse;
+            }
         }
+        String fileId = compileFileResult.getContent();
 
         // 3、运行文件，得到结果
         String tmpcode = "";
@@ -48,8 +62,6 @@ public abstract class remoteTemplate {
         List<Resp> respList = runFile(fileId, inputList, tmpcode);
 
         // 4、处理结果
-        ExecuteCodeResponse executeCodeResponse = new ExecuteCodeResponse();
-
         List<String> outputList = new ArrayList<>();
         List<JudgeInfo> judgeInfoList = new ArrayList<>();
 
@@ -67,10 +79,14 @@ public abstract class remoteTemplate {
                 judgeInfo.setTime(time / (1000 * 1000));
                 judgeInfoList.add(judgeInfo);
             } else {
-                String status = resp.getStatus();
                 RespFile files = resp.getFiles();
                 String stderr = files.getStderr();
+                outputList.add(stderr);
 
+                JudgeInfo judgeInfo = new JudgeInfo();
+                judgeInfo.setMessage(RUNTIME_ERROR.getValue());
+                judgeInfo.setErrorMessage(stderr);
+                judgeInfoList.add(judgeInfo);
             }
         }
         executeCodeResponse.setStatus(2);
@@ -93,7 +109,7 @@ public abstract class remoteTemplate {
      */
     public String getRequest(String code) {
         List<String> env = Collections.singletonList("PATH=E:\\Environment\\Java\\jdk-17\\bin");
-        List<String> args = Arrays.asList("E:\\Environment\\Java\\jdk-17\\bin\\javac", "Main.java");
+        List<String> args = Arrays.asList("E:\\Environment\\Java\\jdk-17\\bin\\javac", "-encoding", "utf-8", "Main.java");
 
         JSONObject cmd = getCmd(args, env, "");
 
@@ -115,14 +131,31 @@ public abstract class remoteTemplate {
      * @param json requestJson
      * @return ID
      */
-    public String compileFile(String json) {
+    public CompileFileResult compileFile(String json) {
         String body = HttpRequest.post(REMOTE_URL + "/run")
                 .body(json)
                 .execute().body();
 
         JSONObject res = (JSONObject) JSONUtil.parseArray(body).get(0);
-        JSONObject o = (JSONObject) res.get("fileIds");
-        return (String) o.get("Main.class");
+        Resp resp = JSONUtil.toBean(res, Resp.class);
+
+        CompileFileResult compileFileResult = new CompileFileResult();
+
+        // 如果状态不为 Accepted
+        String status = resp.getStatus();
+        if (!status.equals("Accepted")) {
+            RespFile files = resp.getFiles();
+            String stderr = files.getStderr();
+            compileFileResult.setStatus(1);
+            compileFileResult.setContent(stderr);
+        } else {
+            JSONObject fileIds = (JSONObject) res.get("fileIds");
+            String id = fileIds.get("Main.class").toString();
+            compileFileResult.setStatus(0);
+            compileFileResult.setContent(id);
+        }
+
+        return compileFileResult;
     }
 
     public List<Resp> runFile(String fileId, List<String> inputList, String code) {

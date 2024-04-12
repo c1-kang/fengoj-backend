@@ -5,16 +5,10 @@ import com.ks.fengoj.exception.BusinessException;
 import com.ks.fengoj.judge.codeSanbox.CodeSandbox;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeRequest;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeResponse;
-import com.ks.fengoj.judge.codeSanbox.model.JudgeInfo;
 import com.ks.fengoj.judge.codeSanbox.remote.CppCodeSandbox;
 import com.ks.fengoj.judge.codeSanbox.remote.JavaCodeSandbox;
 import com.ks.fengoj.judge.codeSanbox.remote.PythonCodeSandbox;
-import com.ks.fengoj.judge.codeSanbox.remote.remoteTemplate;
-import com.ks.fengoj.model.enums.JudgeInfoMessageEnum;
 import com.ks.fengoj.model.enums.QuestionSubmitLanguageEnum;
-import com.ks.fengoj.model.enums.QuestionSubmitStatusEnum;
-
-import java.util.List;
 
 /**
  * 远程调用代码沙箱（go-judge）

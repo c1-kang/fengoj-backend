@@ -6,7 +6,9 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeRequest;
 import com.ks.fengoj.judge.codeSanbox.model.ExecuteCodeResponse;
+import com.ks.fengoj.judge.codeSanbox.model.remote.CompileFileResult;
 import com.ks.fengoj.judge.codeSanbox.model.remote.Resp;
+import com.ks.fengoj.judge.codeSanbox.model.remote.RespFile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -47,14 +49,31 @@ public class CppCodeSandbox extends remoteTemplate{
     }
 
     @Override
-    public String compileFile(String json) {
+    public CompileFileResult compileFile(String json) {
         String body = HttpRequest.post(REMOTE_URL + "/run")
                 .body(json)
                 .execute().body();
 
         JSONObject res = (JSONObject) JSONUtil.parseArray(body).get(0);
-        JSONObject o = (JSONObject) res.get("fileIds");
-        return (String) o.get("a.exe");
+        Resp resp = JSONUtil.toBean(res, Resp.class);
+
+        CompileFileResult compileFileResult = new CompileFileResult();
+
+        // 如果状态不为 Accepted
+        String status = resp.getStatus();
+        if (!status.equals("Accepted")) {
+            RespFile files = resp.getFiles();
+            String stderr = files.getStderr();
+            compileFileResult.setStatus(1);
+            compileFileResult.setContent(stderr);
+        } else {
+            JSONObject fileIds = (JSONObject) res.get("fileIds");
+            String id = fileIds.get("a.exe").toString();
+            compileFileResult.setStatus(0);
+            compileFileResult.setContent(id);
+        }
+
+        return compileFileResult;
     }
 
     @Override

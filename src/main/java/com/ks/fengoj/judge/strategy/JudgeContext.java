@@ -24,6 +24,11 @@ public class JudgeContext {
     private String mode;
 
     /**
+     * 判题状态
+     */
+    private Integer status;
+
+    /**
      * 输入
      */
     private List<String> inputList;

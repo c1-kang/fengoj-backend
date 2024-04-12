@@ -19,10 +19,18 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
 
     @Override
     public ResponseJudgeInfo doJudge(JudgeContext judgeContext) {
+        ResponseJudgeInfo resp = new ResponseJudgeInfo();
+
         List<JudgeInfo> judgeInfo = judgeContext.getJudgeInfo();
-        List<String> inputList = judgeContext.getInputList();
         List<String> outputList = judgeContext.getOutputList();
         List<String> outputCaseList = judgeContext.getOutputCaseList();
+        Integer status = judgeContext.getStatus();
+
+        if (status == 3) {
+            resp.setStatus(COMPILE_ERROR.getValue());
+            resp.setErrorMessage(judgeInfo.get(0).getErrorMessage());
+            return resp;
+        }
 
         Question question = judgeContext.getQuestion();
         String judgeConfigStr = question.getJudgeConfig();
@@ -30,50 +38,44 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
         Long needMemoryLimit = judgeConfig.getMemoryLimit();
         Long needTimeLimit = judgeConfig.getTimeLimit();
 
-        ResponseJudgeInfo resp = new ResponseJudgeInfo();
-        List<JudgeInfo> judgeInfoList = new ArrayList<>();
-
-        // TODO 编译错误
-
         // 判断题目配置条件
         JudgeInfoMessageEnum j = ACCEPTED;
         long maxMemory = 0L, maxTime = 0L;
         for (int i = 0; i < outputList.size(); i ++) {
-            JudgeInfo info = new JudgeInfo();
             String input = outputCaseList.get(i);
             String output = outputList.get(i);
             Long memory = judgeInfo.get(i).getMemory();
             Long time = judgeInfo.get(i).getTime();
+            String message = judgeInfo.get(i).getMessage();
+
+            if (message.equals(RUNTIME_ERROR.getValue())) {
+                j = RUNTIME_ERROR;
+                resp.setErrorMessage(judgeInfo.get(i).getErrorMessage());
+                break;
+            }
 
             maxTime = Math.max(maxTime, time);
             maxMemory = Math.max(maxMemory, memory);
 
-            info.setMessage(ACCEPTED.getValue());
-            info.setTime(time);
-            info.setMemory(memory);
-
             // 如果不相等
             if (!input.equals(output) && !output.equals(input + "\r\n")) {
-                info.setMessage(WRONG_ANSWER.getValue());
                 j = WRONG_ANSWER;
+                break;
             }
 
             // 判断内存
             if (memory > needMemoryLimit) {
-                info.setMessage(MEMORY_LIMIT_EXCEEDED.getValue());
                 j = MEMORY_LIMIT_EXCEEDED;
+                break;
             }
 
             // 判断时间
             if (time > needTimeLimit) {
-                info.setMessage(TIME_LIMIT_EXCEEDED.getValue());
                 j = TIME_LIMIT_EXCEEDED;
+                break;
             }
-
-            judgeInfoList.add(info);
         }
 
-        resp.setJudgeInfoList(judgeInfoList);
         resp.setMemory(maxMemory);
         resp.setTime(maxTime);
         resp.setStatus(j.getValue());

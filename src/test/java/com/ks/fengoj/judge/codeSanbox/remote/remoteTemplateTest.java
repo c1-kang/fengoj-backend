@@ -7,9 +7,7 @@ import cn.hutool.json.JSONUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @SpringBootTest
 class remoteTemplateTest {
@@ -17,7 +15,6 @@ class remoteTemplateTest {
     private static final List<String> ENV = Collections.singletonList("PATH=E:\\Environment\\Java\\jdk-17\\bin");
 
     private static final List<String> ARGS = Arrays.asList("E:\\Environment\\Java\\jdk-17\\bin\\javac", "Main.java");
-
 
     @Test
     public void invoke() {

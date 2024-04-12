@@ -113,10 +113,12 @@ public class JudgeServiceImpl implements JudgeService {
 
         // 5）根据沙箱的执行结果，设置题目的判题状态和信息
         List<String> outputList = executeCodeResponse.getOutputList();
+        Integer status1 = executeCodeResponse.getStatus();
 
         // 运用策略模式来执行
         JudgeContext judgeContext = new JudgeContext();
         judgeContext.setMode("ACM");
+        judgeContext.setStatus(status1);
         judgeContext.setJudgeInfo(executeCodeResponse.getJudgeInfo());
         judgeContext.setInputList(inputList);
         judgeContext.setOutputList(outputList);

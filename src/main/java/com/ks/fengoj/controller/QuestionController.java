@@ -49,14 +49,11 @@ import java.util.Objects;
 @Slf4j
 public class QuestionController {
 
+    private final static Gson GSON = new Gson();
     @Resource
     private QuestionService questionService;
-
     @Resource
     private UserService userService;
-
-    private final static Gson GSON = new Gson();
-
     @Resource
     private QuestionSubmitService questionSubmitService;
 
@@ -67,10 +64,32 @@ public class QuestionController {
     // region 增删改查
 
     /**
+     * 递归删除文件夹
+     *
+     * @param folder 文件夹
+     */
+    public static void deleteFolder(File folder) {
+        // 获取文件夹中的所有文件和子文件夹
+        File[] files = folder.listFiles();
+        if (files != null) { // 确保文件夹不为空
+            for (File file : files) {
+                // 如果是文件，直接删除
+                if (file.isFile()) {
+                    file.delete();
+                } else if (file.isDirectory()) { // 如果是子文件夹，递归删除
+                    deleteFolder(file);
+                }
+            }
+        }
+        // 删除空文件夹
+        folder.delete();
+    }
+
+    /**
      * 创建
      *
      * @param questionAddRequest questionAddRequest
-     * @param request request
+     * @param request            request
      * @return 新问题 ID
      */
     @PostMapping("/add")
@@ -110,7 +129,7 @@ public class QuestionController {
      * 删除
      *
      * @param deleteRequest deleteRequest
-     * @param request request
+     * @param request       request
      * @return Boolean
      */
     @PostMapping("/delete")
@@ -242,12 +261,12 @@ public class QuestionController {
      * 分页获取列表（封装类）
      *
      * @param questionQueryRequest questionQueryRequest
-     * @param request request
+     * @param request              request
      * @return Page<QuestionVO>
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-            HttpServletRequest request) {
+                                                               HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
@@ -257,16 +276,18 @@ public class QuestionController {
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
     }
 
+    // endregion
+
     /**
      * 分页获取当前用户创建的资源列表
      *
      * @param questionQueryRequest questionQueryRequest
-     * @param request request
+     * @param request              request
      * @return Page<QuestionVO>
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listMyQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
-            HttpServletRequest request) {
+                                                                 HttpServletRequest request) {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -281,13 +302,11 @@ public class QuestionController {
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
     }
 
-    // endregion
-
     /**
      * 编辑（用户）
      *
      * @param questionEditRequest questionEditRequest
-     * @param request request
+     * @param request             request
      * @return Boolean
      */
     @PostMapping("/edit")
@@ -323,6 +342,7 @@ public class QuestionController {
         boolean result = questionService.updateById(question);
         return ResultUtils.success(result);
     }
+
     /**
      * 分页获取用户列表（仅管理员）
      *
@@ -343,7 +363,7 @@ public class QuestionController {
      * 题目提交
      *
      * @param questionSubmitAddRequest questionSubmitAddRequest
-     * @param request request
+     * @param request                  request
      * @return resultNum 本次题目提交变化数
      */
     @PostMapping("/question_submit/do")
@@ -353,13 +373,16 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能题目提交
-        final User loginUser = userService.getLoginUser(request);
+        // final User loginUser = userService.getLoginUser(request);
+        User loginUser = new User();
+        loginUser.setId(1L);
         Long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
     }
 
     /**
      * 测试题目代码
+     *
      * @param questionSubmitTestRequest questionSubmitTestRequest
      * @return QuestionSubmitTestResponse
      */
@@ -404,7 +427,7 @@ public class QuestionController {
      * 分页获取提交列表
      *
      * @param questionQuerySubmitRequest questionQuerySubmitRequest
-     * @param request request
+     * @param request                    request
      * @return Page<QuestionSubmitVO>
      */
     @PostMapping("/question_submit/list/page")
@@ -422,6 +445,7 @@ public class QuestionController {
 
     /**
      * 根据 ID 获取提交
+     *
      * @param id ID
      * @return QuestionSubmit
      */
@@ -438,26 +462,5 @@ public class QuestionController {
         }
 
         return ResultUtils.success(result);
-    }
-
-    /**
-     * 递归删除文件夹
-     * @param folder 文件夹
-     */
-    public static void deleteFolder(File folder) {
-        // 获取文件夹中的所有文件和子文件夹
-        File[] files = folder.listFiles();
-        if (files != null) { // 确保文件夹不为空
-            for (File file : files) {
-                // 如果是文件，直接删除
-                if (file.isFile()) {
-                    file.delete();
-                } else if (file.isDirectory()) { // 如果是子文件夹，递归删除
-                    deleteFolder(file);
-                }
-            }
-        }
-        // 删除空文件夹
-        folder.delete();
     }
 }

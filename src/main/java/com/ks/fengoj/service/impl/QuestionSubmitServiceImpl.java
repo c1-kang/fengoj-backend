@@ -20,6 +20,7 @@ import com.ks.fengoj.model.enums.QuestionSubmitLanguageEnum;
 import com.ks.fengoj.model.enums.QuestionSubmitStatusEnum;
 import com.ks.fengoj.model.vo.QuestionSubmitVO;
 import com.ks.fengoj.model.vo.UserVO;
+import com.ks.fengoj.rabbitMQ.MyMessageProducer;
 import com.ks.fengoj.service.QuestionService;
 import com.ks.fengoj.service.QuestionSubmitService;
 import com.ks.fengoj.service.UserService;
@@ -37,33 +38,32 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
-* @author 28356
-* @description 针对表【question_submit(题目提交)】的数据库操作Service实现
-* @createDate 2023-09-10 10:30:33
-*/
+ * @author 28356
+ * @description 针对表【question_submit(题目提交)】的数据库操作Service实现
+ * @createDate 2023-09-10 10:30:33
+ */
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
-    implements QuestionSubmitService{
+        implements QuestionSubmitService {
+    private final static Gson GSON = new Gson();
     @Resource
     private QuestionService questionService;
-
     @Resource
     private UserService userService;
-
     @Resource
     @Lazy
     private JudgeService judgeService;
-
     @Resource
     private QuestionSubmitMapper questionSubmitMapper;
+    @Resource
+    private MyMessageProducer myMessageProducer;
 
-    private final static Gson GSON = new Gson();
 
     /**
      * 题目提交
      *
      * @param questionSubmitAddRequest 添加提交代码请求
-     * @param loginUser 登录用户
+     * @param loginUser                登录用户
      * @return questionSubmitId
      */
     @Override
@@ -107,12 +107,15 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "提交数更新失败");
         }
 
-        CompletableFuture.runAsync(() -> {
-            judgeService.doJudge(questionSubmitId);
-        });
+        // 改为 RabbitMQ
+        myMessageProducer.sendMessage("code_exchange", "my_routingKey", String.valueOf(questionSubmitId));
+        // CompletableFuture.runAsync(() -> {
+        //     judgeService.doJudge(questionSubmitId);
+        // });
 
         return questionSubmitId;
     }
+
     /**
      * 获取查询包装类
      *

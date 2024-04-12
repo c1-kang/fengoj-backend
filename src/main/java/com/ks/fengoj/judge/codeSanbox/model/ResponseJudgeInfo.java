@@ -30,4 +30,9 @@ public class ResponseJudgeInfo {
      * 最大运行时间
      */
     private Long time;
+
+    /**
+     * 错误信息
+     */
+    private String errorMessage;
 }
