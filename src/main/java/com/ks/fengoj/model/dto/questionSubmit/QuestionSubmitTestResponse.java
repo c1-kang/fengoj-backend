@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 public class QuestionSubmitTestResponse implements Serializable {
     /**
-     * 状态 Finished,  Compiler,  TimeLimit,  MemoryLimit
+     * 状态
      */
     private String status;
 

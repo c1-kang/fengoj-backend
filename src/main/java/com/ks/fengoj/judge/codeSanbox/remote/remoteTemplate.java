@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.ks.fengoj.constant.CommonConstant.REMOTE_URL;
+import static com.ks.fengoj.model.enums.JudgeInfoMessageEnum.COMPILE_ERROR;
 import static com.ks.fengoj.model.enums.JudgeInfoMessageEnum.RUNTIME_ERROR;
 
 /**
@@ -47,6 +48,7 @@ public abstract class remoteTemplate {
             if (status == 1) {
                 executeCodeResponse.setStatus(3);
                 JudgeInfo judgeInfo = new JudgeInfo();
+                judgeInfo.setMessage(COMPILE_ERROR.getValue());
                 judgeInfo.setErrorMessage(compileFileResult.getContent());
                 ArrayList<JudgeInfo> judgeInfos = new ArrayList<>();
                 judgeInfos.add(judgeInfo);

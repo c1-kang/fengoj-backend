@@ -26,6 +26,7 @@ public class MyMessageConsumer {
     @RabbitListener(queues = {"code_queue"}, ackMode = "MANUAL")
     public void receiveMessage(String message, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {
         log.info("receiveMessage message = {}", message);
+
         long questionSubmitId = Long.parseLong(message);
         try {
             judgeService.doJudge(questionSubmitId);

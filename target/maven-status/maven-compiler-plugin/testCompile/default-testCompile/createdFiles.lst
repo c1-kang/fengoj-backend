@@ -1,7 +1,0 @@
-com\ks\fengoj\utils\EasyExcelTest.class
-com\ks\fengoj\manager\CosManagerTest.class
-com\ks\fengoj\controller\FileControllerTest.class
-com\ks\fengoj\model\vo\QuestionVOTest.class
-com\ks\fengoj\service\UserServiceTest.class
-com\ks\fengoj\MainApplicationTests.class
-com\ks\fengoj\judge\codeSanbox\CodeSandboxTest.class

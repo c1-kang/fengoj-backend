@@ -373,9 +373,9 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能题目提交
-        // final User loginUser = userService.getLoginUser(request);
-        User loginUser = new User();
-        loginUser.setId(1L);
+        final User loginUser = userService.getLoginUser(request);
+        // User loginUser = new User();
+        // loginUser.setId(1L);
         Long result = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
         return ResultUtils.success(result);
     }
@@ -413,11 +413,11 @@ public class QuestionController {
         JudgeInfo judgeInfo = judgeInfos.get(0);
 
         if (status.equals(3)) {
-            result.setStatus(message);
-            result.setErrorMessage(judgeInfo.getMessage());
+            result.setStatus(judgeInfo.getMessage());
+            result.setErrorMessage(judgeInfo.getErrorMessage());
             return ResultUtils.success(result);
         }
-        result.setStatus("Finished");
+        result.setStatus(judgeInfo.getMessage());
         result.setTime(judgeInfo.getTime());
         result.setResult(outputList.get(0));
         return ResultUtils.success(result);

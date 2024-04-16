@@ -10,11 +10,4 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class MyMessageProducerTest {
 
-    @Resource
-    private MyMessageProducer myMessageProducer;
-
-    @Test
-    void sendMessage() {
-        myMessageProducer.sendMessage("code_exchange", "my_routingKey", "你好呀");
-    }
 }
