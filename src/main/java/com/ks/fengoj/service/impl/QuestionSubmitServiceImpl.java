@@ -75,6 +75,12 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
 
+        // 判断代码是否为空
+        String code = questionSubmitAddRequest.getCode();
+        if (StringUtils.isBlank(code)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "代码为空");
+        }
+
         // 判断实体是否存在，根据类别获取实体
         Long questionId = questionSubmitAddRequest.getQuestionId();
         Question question = questionService.getById(questionId);
@@ -84,7 +90,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         Long loginUserId = loginUser.getId();
         QuestionSubmit questionSubmit = new QuestionSubmit();
         questionSubmit.setLanguage(language);
-        questionSubmit.setCode(questionSubmitAddRequest.getCode());
+        questionSubmit.setCode(code);
         JudgeInfo judgeInfo = new JudgeInfo();
         judgeInfo.setMessage(JudgeInfoMessageEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo(GSON.toJson(judgeInfo));

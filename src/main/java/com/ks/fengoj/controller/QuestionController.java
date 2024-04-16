@@ -453,9 +453,13 @@ public class QuestionController {
     public BaseResponse<QuestionSubmit> getSubmitById(@RequestParam("submitId") String id, HttpServletRequest request) {
         Long submitId = Long.parseLong(id);
         User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
         Long userId = loginUser.getId();
         QuestionSubmit result = questionSubmitService.getById(submitId);
         Long submitUserId = result.getUserId();
+
         // 既不是管理员，又不是自己提交的，看不到提交代码
         if (!Objects.equals(userId, submitUserId) && !userService.isAdmin(loginUser)) {
             result.setCode("");
