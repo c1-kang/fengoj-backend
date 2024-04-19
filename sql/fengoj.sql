@@ -43,7 +43,7 @@ CREATE TABLE `question`  (
 -- ----------------------------
 -- Records of question
 -- ----------------------------
-INSERT INTO `question` VALUES (2, 'a+b', '{\"questionDesc\":\"a+b\",\"inputDesc\":\"a+b\",\"outputDesc\":\"a+b\"}', '[\"a+b\"]', 60, 12, '[{\"input\":\"1 2\",\"output\":\"3\",\"desc\":\"\"}]', '{\"timeLimit\":1000,\"memoryLimit\":1000,\"stackLimit\":1000}', 1, '2023-11-20 18:56:37', '2023-12-08 17:49:42', 0, 0, 'E:\\Code\\Project\\OJ\\fengoj-backend\\JudgeCaeDir\\1\\vdIiDRrD');
+INSERT INTO `question` VALUES (2, 'a+b', '{\"questionDesc\":\"a+b\",\"inputDesc\":\"a+b\",\"outputDesc\":\"a+b\"}', '[\"a+b\"]', 60, 12, '[{\"input\":\"1 2\",\"output\":\"3\",\"desc\":\"\"}]', '{\"timeLimit\":1000,\"memoryLimit\":1000,\"stackLimit\":1000}', 1, '2023-11-20 18:56:37', '2023-12-08 17:49:42', 0, 0, 'E:\\Code\\Project\\OJ\\fengoj-backend\\JudgeCaseDir\\1\\vdIiDRrD');
 
 -- ----------------------------
 -- Table structure for question_submit

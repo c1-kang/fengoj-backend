@@ -22,7 +22,7 @@ class FileControllerTest {
      */
     @Test
     void TestString() throws IOException {
-        String filePath = "E:\\Code\\Project\\OJ\\fengoj-backend\\JudgeCaeDir\\1700433410457255938\\QauTqwol\\in";
+        String filePath = "E:\\Code\\Project\\OJ\\fengoj-backend\\JudgeCaseDir\\1700433410457255938\\QauTqwol\\in";
         File file = new File(filePath);
         List<String> list = new ArrayList<>();
         for (File listFile : file.listFiles()) {

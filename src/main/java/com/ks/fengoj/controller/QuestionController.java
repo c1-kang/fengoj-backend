@@ -201,7 +201,7 @@ public class QuestionController {
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
 
         // 删除过期的样例数据
-        String mainPath = System.getProperty("user.dir") + File.separator + "JudgeCaeDir";
+        String mainPath = System.getProperty("user.dir") + File.separator + "JudgeCaseDir";
         User loginUser = userService.getLoginUser(request);
         String loginUserPath = mainPath + File.separator + loginUser.getId();
         File file = new File(loginUserPath);

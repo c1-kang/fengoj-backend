@@ -19,7 +19,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * 权限校验 AOP
-
  */
 @Aspect
 @Component
@@ -38,6 +37,11 @@ public class AuthInterceptor {
     @Around("@annotation(authCheck)")
     public Object doInterceptor(ProceedingJoinPoint joinPoint, AuthCheck authCheck) throws Throwable {
         String mustRole = authCheck.mustRole();
+
+        // TODO 试一下获取方法的请求参数 request
+        Object[] args = joinPoint.getArgs();
+        int length = args.length;
+
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 当前登录用户

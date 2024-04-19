@@ -151,6 +151,7 @@ public class FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         validFile(multipartFile, fileUploadBizEnum);
+
         // 文件目录：根据业务、用户来划分
         User loginUser = userService.getLoginUser(request);
         String uuid = RandomStringUtils.randomAlphanumeric(8);
