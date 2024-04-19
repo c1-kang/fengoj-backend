@@ -6,6 +6,7 @@ import com.ks.fengoj.judge.codeSanbox.model.ResponseJudgeInfo;
 import com.ks.fengoj.model.dto.question.JudgeConfig;
 import com.ks.fengoj.model.entity.Question;
 import com.ks.fengoj.model.enums.JudgeInfoMessageEnum;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,14 @@ public class DefaultJudgeStrategy implements JudgeStrategy {
             maxMemory = Math.max(maxMemory, memory);
 
             // 如果不相等
-            if (!input.equals(output) && !output.equals(input + "\r\n")) {
+            // 处理格式问题 \r\n -> \n，去除末尾 \n
+            input = input.replace("\r\n", "\n");
+            output = output.replace("\r\n", "\n");
+            input = StringUtils.chomp(input);
+            output = StringUtils.chomp(output);
+            String difference = StringUtils.difference(input, output);
+            System.out.println("difference: " + difference);
+            if (!input.equals(output)) {
                 j = WRONG_ANSWER;
                 break;
             }

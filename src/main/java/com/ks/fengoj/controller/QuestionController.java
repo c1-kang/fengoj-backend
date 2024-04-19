@@ -30,6 +30,7 @@ import com.ks.fengoj.service.QuestionService;
 import com.ks.fengoj.service.QuestionSubmitService;
 import com.ks.fengoj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -391,14 +392,19 @@ public class QuestionController {
         if (questionSubmitTestRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        CodeSandbox codeSandbox = CodeSandboxFactory.newInstance(type);
-        codeSandbox = new CodeSandboxProxy(codeSandbox);
         String language = questionSubmitTestRequest.getLanguage();
         String code = questionSubmitTestRequest.getCode();
         String input = questionSubmitTestRequest.getInput();
+
+        // 参数不能为空
+        if (StringUtils.isAnyBlank(language, code, input)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数不能为空");
+        }
+
+        CodeSandbox codeSandbox = CodeSandboxFactory.newInstance(type);
+        codeSandbox = new CodeSandboxProxy(codeSandbox);
         List<String> inputList = new ArrayList<>();
         inputList.add(input);
-
         ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
                 .code(code)
                 .language(language)
